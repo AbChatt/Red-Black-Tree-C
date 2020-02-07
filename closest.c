@@ -91,7 +91,7 @@ RBNode *newNode(int value) {
   }
 
   node->value = value;
-  node->colour = 'B';
+  node->colour = 'R';
   node->left = NULL;
   node->right = NULL;
 
@@ -99,6 +99,154 @@ RBNode *newNode(int value) {
 
 
   return node;
+}
+
+bool query(RBNode *root, int value) {
+  RBNode *p = NULL;
+
+  p = root;
+
+  while (p != NULL) {
+    if (p->value > value) {
+      p = p->left;
+    }
+    else if (p->value < value) {
+      p = p->right
+    }
+    else
+    {
+      return true;
+    }
+    
+  }
+
+  return false;
+}
+
+void recolour_nodes(RBNode *grand_parent) {
+  if (grand_parent->colour == 'B') {
+    grand_parent->colour == 'R';
+
+    if (grand_parent->left->colour == 'B' && grand_parent->left != NULL) {
+      grand_parent->left->colour == 'R';
+    }
+    else
+    {
+      grand_parent->left->colour == 'B';
+    }
+
+    if (grand_parent->right->colour == 'B' && grand_parent->right != NULL) {
+      grand_parent->right->colour == 'R';
+    }
+    else
+    {
+      grand_parent->right->colour == 'B';
+    }
+        
+  }
+  else
+  {
+    grand_parent->colour == 'B';
+
+    if (grand_parent->left->colour == 'B' && grand_parent->left != NULL) {
+      grand_parent->left->colour == 'R';
+    }
+    else
+    {
+      grand_parent->left->colour == 'B';
+    }
+
+    if (grand_parent->right->colour == 'B' && grand_parent->right != NULL) {
+      grand_parent->right->colour == 'R';
+    }
+    else
+    {
+      grand_parent->right->colour == 'B';
+    }
+  }
+  
+}
+
+void rotation(RBNode *grand_parent, RBNode *parent, RBNode *new_node) {
+  RBNode *temp = NULL;
+
+  temp = grand_parent;
+
+  if (grand_parent->left == parent && parent->left == new_node || grand_parent->right == parent && parent->left == new_node) {
+    // right rotation
+  }
+  else if (grand_parent->right == parent && parent->right == new_node || grand_parent->left == parent && parent->right == new_node) {
+    // left rotation
+  }
+
+}
+
+RBNode *rebalance_tree(RBNode *root, RBNode *new_node) {
+  RBNode *grand_parent = NULL;
+  RBNode *parent = NULL;
+  RBNode *p = NULL;
+
+  p = root;
+
+  if (root->left == NULL && root->right == NULL) {
+    if (root->colour == 'R') {
+      root->colour == 'B';
+      return root;
+    }
+  }
+  else if (root->left->left == NULL or root->left->right == NULL) {
+    return root;
+  }
+  else if (root->right->left == NULL or root->right->right == NULL) {
+    return root;
+  }
+
+  while (p->value != new_node->value) {
+    if (p->value > new_node->value) {
+      grand_parent = parent;
+      parent = p;
+      p = p->left;
+    }
+    else if (p->value < new_node -> value) {
+      grand_parent = parent;
+      parent = p;
+      p = p->right;
+    }
+    else
+    {
+      if (p->colour == 'R' && parent->colour == 'R') {
+        if (grand_parent->left == parent) {
+          if (grand_parent->right->colour == 'R') {
+            recolour_nodes(&grand_parent);
+            root = rebalance_tree(&root, &parent);
+          }
+          else
+          {
+            rotation(&grand_parent, &parent, &p);
+            root = rebalance_tree(root, parent);
+          }
+        }
+        else
+        {
+          if (grand_parent->left->colour == 'R') {
+            recolour_nodes(grand_parent);
+            root = rebalance_tree(root, parent);
+          }
+          else
+          {
+            rotation(&grand_parent, &parent, &p);
+            root = rebalance_tree(root, parent);
+          }
+          
+        }
+        
+      }
+    }
+    
+  }
+
+  return root;
+  
 }
 
 RBNode *insert(RBNode *root, int value) {
@@ -133,8 +281,23 @@ RBNode *insert(RBNode *root, int value) {
    *          O(log(n)) time, where `n` is the number of nodes in
    *          the tree before the insert.
    */
+  
+  RBNode *new_node = NULL;
+  new_node = newNode(value);
 
-  return root;  // Placeholder statement... replace this.
+  if (root == NULL) {
+    root = new_node;
+  }
+  else {
+    if (root->value > new_node->value) {
+      root->left = insert(root->left, new_node->value);
+    }
+    else if (root->value < new_node->value) {
+      root->right = insert(root->right, new_node->value);
+    }     
+  }
+
+  return rebalance_tree(root, new_node);  // Placeholder statement... replace this.
 }
 
 void closestPair(RBNode *root, int *a, int *b) {
